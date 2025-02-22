@@ -44,16 +44,16 @@ def _cherche_entête(nom_tableau :str, entête :list[str], données :list[str]) 
 	"""
 	Recherche les données dans 'entête' et lève une exception si elles n'existent pas.
 
-	Parameters
+	Paramètres
 	----------
-	nom_tablea : string
+	nom_tableau : string
 		Le nom du tableau auquel appartient l'entête. Demander pour donner plus d'information en cas d'erreur.
 	entête : list of strings
 		L'entête du tableau, l'ordre des attributs doit être conservé.
 	données : list of strings
 		Les données recherchées dans l'entête.
 	
-	Returns
+	Retourne
 	-------
 	Une liste contenant pour chaque donnée, son index dans l'entête.
 
@@ -80,14 +80,14 @@ def importer_vrp(fichier :str|Path|IO[str]) -> tuple[list[Client], list[Client]]
 	Importe les données du fichier .vrp dans le programme.
 	La fonction parse les métadonnées, puis se met à la recherche des tableaux 'DATA_DEPOTS' et 'DATA_CLIENTS'.
 
-	Parameters
+	Paramètres
 	----------
 	fichier : path_like
 		Le nom du fichier à importer.
 	fichier : stream_like
 		Un flux ouvert sur le fichier à importer.
 	
-	Returns
+	Retourne
 	-------
 	Un tuple contenant respectivement la liste des dépots et la liste des clients.
 
