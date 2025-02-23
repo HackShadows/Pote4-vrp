@@ -1,8 +1,10 @@
+import math
+
 class Client :
 
 	__slots__ = "id", "pos", "demande", "intervalle_livraison", "temps_livraison"
 
-	def __init__(self, id: int, pos: tuple[int, int], intervalle_livraison: tuple[int, int], temps_livraison: int = 0, demande: int = 0) -> None:
+	def __init__(self, id: str = "-1", pos: tuple[int, int] = (0, 0), intervalle_livraison: tuple[int, int] = (-1, -1), temps_livraison: int = 0, demande: int = 0) -> None:
 		self.id = id
 		self.pos = pos
 		self.demande = demande
@@ -18,28 +20,40 @@ class Client :
 
 
 
+def distance(client1: Client, client2: Client) -> float:
+    x1, y1 = client1.pos
+    x2, y2 = client2.pos
+    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+
+
+
 
 
 class Trajet :
 
-	__slots__ = "longueur", "nb_clients", "clients"
+	__slots__ = "longueur", "nb_clients", "clients", "depot"
 
-	def __init__(self) -> None:
-		self.longueur = 0
+	def __init__(self, depot: Client) -> None:
+		self.longueur = 0.0
 		self.nb_clients = 0
 		self.clients = []
+		self.depot = depot
 
+	
 	def __repr__(self) -> str :
 		long = self.longueur
 		nb = self.nb_clients
-		return f"Trajet(longueur : {long}km, contient {nb} clients)"
+		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {'[e.id for e in self.clients]'})"
 	
-	def ajouter_client(self, client: Client) -> None:
+	
+	def ajouter_client(self, indice: int, client: Client) -> None:
 		"""
-		Ajoute un client à la feuille de route.
+		Ajoute un client à la feuille de route, à la position 'indice'.
 
 		Paramètres
 		----------
+		indice : int
+			Indice du client dans la liste clients.
 		client : Client
 			Client à ajouter dans l'itinéraire de livraison.
 
@@ -49,11 +63,19 @@ class Trajet :
 			Mauvaise saisie de client.
 		"""
 		try:
-			assert type(client) == Trajet
-			self.clients.append(client)
+			assert type(client) == Client
+			assert type(indice) == int and indice >= 0
+			self.clients.insert(indice, client)
 			self.nb_clients += 1
+			if self.nb_clients == 1: self.longueur = 2 * distance(self.depot, client)
+			else: 
+				if indice == 0: self.longueur += distance(client, self.depot) + distance(client, self.clients[1]) - distance(self.clients[1], self.depot)
+				elif indice >= self.nb_clients - 1: self.longueur += distance(client, self.depot) + distance(client, self.clients[-2]) - distance(self.clients[-2], self.depot)
+				else: self.longueur -= distance(self.clients[indice-1], self.clients[indice+1]) - distance(client, self.clients[indice+1]) - distance(client, self.clients[indice-1])
+		
 		except AssertionError:
 			raise ValueError ("Paramètre incorrect !")
+	
 	
 	def retirer_client(self, indice: int) -> Client:
 		"""
@@ -75,11 +97,18 @@ class Trajet :
 		"""
 		try:
 			assert type(indice) == int and indice < self.nb_clients and indice >= 0
+			cli = self.clients.pop(indice)
 			self.nb_clients -= 1
-			return self.clients.pop(indice)
+			if self.nb_clients == 0: self.longueur = 0 
+			elif self.nb_clients == 1: self.longueur = 2 * distance(self.clients[0], self.depot)
+			else: 
+				if indice == 0: self.longueur += distance(self.clients[0], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[0])
+				elif indice == self.nb_clients: self.longueur += distance(self.clients[-1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-1])
+				else: self.longueur += distance(self.clients[indice-1], self.clients[indice]) - distance(cli, self.clients[indice]) - distance(cli, self.clients[indice-1])
+			return cli
+		
 		except AssertionError:
 			raise IndexError ("Indice invalide !")
-
 
 
 
@@ -91,16 +120,18 @@ class Flotte :
 
 	def __init__(self, capacite: int) -> None:
 		self.capacite = capacite
-		self.longueur = 0
+		self.longueur = 0.0
 		self.nb_camions = 0
 		self.camions = []
 		self.trajets = []
 	
+	
 	def __repr__(self) -> str :
 		long = self.longueur
 		nb = self.nb_camions
-		return f"Flotte(longueur : {long}km, contient {nb} camions)"
+		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
 
+	
 	def ajouter_camion(self, marchandise: int, trajet: Trajet) -> None:
 		"""
 		Ajoute un camion et son itinéraire.
@@ -124,10 +155,12 @@ class Flotte :
 			self.trajets.append(trajet)
 			self.longueur += trajet.longueur
 			self.nb_camions += 1
+		
 		except AssertionError:
 			raise ValueError ("Paramètres incorrects !")
 	
-	def retirer_camion(self, indice: int) -> list[int, list[Client]]:
+	
+	def retirer_camion(self, indice: int) -> tuple[int, list[Client]]:
 		"""
 		Efface un camion et son itinéraire.
 
@@ -152,5 +185,6 @@ class Flotte :
 			self.longueur -= t.longueur
 			self.nb_camions -= 1
 			return c, t.clients
+		
 		except AssertionError:
 			raise IndexError ("Indice invalide !")
