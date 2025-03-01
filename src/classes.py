@@ -64,7 +64,7 @@ class Trajet :
 		Paramètres
 		----------
 		indice : int
-			Indice du client dans la liste clients.
+			Indice du client dans la liste 'clients'.
 		client : Client
 			Client à ajouter dans l'itinéraire de livraison.
 		"""
@@ -82,13 +82,13 @@ class Trajet :
 		Paramètres
 		----------
 		indice : int
-			Indice du client dans la liste clients.
+			Indice du client dans la liste non vide 'clients'.
 
 		Retourne
 		-------
 		Le client se trouvant à l'indice passé en paramètre
 		"""
-		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0
+		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0 and self.nb_clients > 0
 		self.longueur += self.dist_retirer_client(indice)
 		cli = self.clients.pop(indice)
 		self.nb_clients -= 1
@@ -102,7 +102,7 @@ class Trajet :
 		Paramètres
 		----------
 		indice : int
-			Indice du client dans la liste clients.
+			Indice du client dans la liste 'clients'.
 		client : Client
 			Client à ajouter dans l'itinéraire de livraison.
 
@@ -127,19 +127,45 @@ class Trajet :
 		Paramètres
 		----------
 		indice : int
-			Indice du client dans la liste clients.
+			Indice du client dans la liste non vide 'clients'.
 
 		Retourne
 		-------
 		La différence négative de distance entre avant et après le retrait du client
 		"""
-		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0
+		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0 and self.nb_clients > 0
 		cli = self.clients[indice]
 		if self.nb_clients == 1: lg = - self.longueur
 		else: 
 			if indice == 0: lg = distance(self.clients[1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[1])
 			elif indice == self.nb_clients - 1: lg = distance(self.clients[-2], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-2])
 			else: lg = distance(self.clients[indice-1], self.clients[indice+1]) - distance(cli, self.clients[indice+1]) - distance(cli, self.clients[indice-1])
+		return lg
+
+
+	def dist_remplacer_client(self, indice: int, client: Client) -> float:
+		"""
+		Calcule et renvoie la différence de distance entre avant et après le remplacement du client.
+
+		Paramètres
+		----------
+		indice : int
+			Indice du client à remplacer dans la liste non vide 'clients'.
+		client : Client
+			Client utilisé pour le remplacement.
+
+		Renvoie
+		-------
+		La différence de distance entre avant et après le remplacement du client
+		"""
+		assert isinstance(client, Client) and self.nb_clients > 0
+		assert isinstance(indice, int) and indice >= 0
+		cli = self.clients[indice]
+		if self.nb_clients == 1: lg = 2 * distance(self.depot, client) - self.longueur
+		else: 
+			if indice == 0: lg = distance(client, self.depot) + distance(client, self.clients[1]) - distance(cli, self.depot) - distance(cli, self.clients[1])
+			elif indice >= self.nb_clients-1: lg = distance(client, self.depot) + distance(client, self.clients[-2]) - distance(cli, self.depot) - distance(cli, self.clients[-2])
+			else: lg = distance(client, self.clients[indice-1]) + distance(client, self.clients[indice+1]) - distance(cli, self.clients[indice-1]) - distance(cli, self.clients[indice+1])
 		return lg
 		
 
