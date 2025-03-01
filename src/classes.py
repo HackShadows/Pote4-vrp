@@ -70,13 +70,9 @@ class Trajet :
 		"""
 		assert type(client) == Client
 		assert type(indice) == int and indice >= 0
+		self.longueur += self.dist_ajouter_client(indice, client)
 		self.clients.insert(indice, client)
 		self.nb_clients += 1
-		if self.nb_clients == 1: self.longueur = 2 * distance(self.depot, client)
-		else: 
-			if indice == 0: self.longueur += distance(client, self.depot) + distance(client, self.clients[1]) - distance(self.clients[1], self.depot)
-			elif indice >= self.nb_clients - 1: self.longueur += distance(client, self.depot) + distance(client, self.clients[-2]) - distance(self.clients[-2], self.depot)
-			else: self.longueur -= distance(self.clients[indice-1], self.clients[indice+1]) - distance(client, self.clients[indice+1]) - distance(client, self.clients[indice-1])
 	
 	
 	def retirer_client(self, indice: int) -> Client:
@@ -93,14 +89,11 @@ class Trajet :
 		Le client se trouvant à l'indice passé en paramètre
 		"""
 		assert type(indice) == int and indice < self.nb_clients and indice >= 0
+		self.longueur += self.dist_retirer_client(indice)
 		cli = self.clients.pop(indice)
 		self.nb_clients -= 1
-		if self.nb_clients == 0: self.longueur = 0 
-		else: 
-			if indice == 0: self.longueur += distance(self.clients[0], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[0])
-			elif indice == self.nb_clients: self.longueur += distance(self.clients[-1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-1])
-			else: self.longueur += distance(self.clients[indice-1], self.clients[indice]) - distance(cli, self.clients[indice]) - distance(cli, self.clients[indice-1])
 		return cli
+	
 	
 	def dist_ajouter_client(self, indice: int, client: Client) -> float:
 		"""
