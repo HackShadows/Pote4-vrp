@@ -38,7 +38,7 @@ class Trajet :
 
 	__slots__ = "longueur", "nb_clients", "clients", "depot"
 
-	def __init__(self, depot: Client) -> None:
+	def __init__(self, depot: Client = Client()) -> None:
 		self.longueur = 0.0
 		self.nb_clients = 0
 		self.clients = []
@@ -151,7 +151,7 @@ class Flotte :
 
 	__slots__ = "capacite", "longueur", "nb_camions", "camions", "trajets"
 
-	def __init__(self, capacite: int) -> None:
+	def __init__(self, capacite: int = 0) -> None:
 		self.capacite = capacite
 		self.longueur = 0.0
 		self.nb_camions = 0
@@ -165,7 +165,7 @@ class Flotte :
 		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
 
 	
-	def ajouter_camion(self, marchandise: int, trajet: Trajet) -> None:
+	def ajouter_camion(self, trajet: Trajet, marchandise: int = 0) -> None:
 		"""
 		Ajoute un camion et son itinéraire.
 
