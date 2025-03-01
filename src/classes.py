@@ -17,11 +17,11 @@ class Client :
 		return f"Client(id: {self.id}, position: ({x} {y}))"
 	
 
-	def afficher(self) -> str :
+	def afficher(self):
 		x, y = self.pos
 		début, fin = self.intervalle_livraison
 		temps = self.temps_livraison
-		return f"Client(id: {self.id}, position: ({x} {y}), livraison entre {début} et {fin}, demande: {self.demande}, temps de livraison: {temps})"
+		print(f"Client(id: {self.id}, position: ({x} {y}), livraison entre {début} et {fin}, demande: {self.demande}, temps de livraison: {temps})")
 
 
 
@@ -51,10 +51,10 @@ class Trajet :
 		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients)"
 	
 	
-	def afficher(self) -> str:
+	def afficher(self):
 		long = self.longueur
 		nb = self.nb_clients
-		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {[e.id for e in self.clients]})"
+		print(f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {[e.id for e in self.clients]})")
 	
 	
 	def ajouter_client(self, indice: int, client: Client) -> None:
@@ -163,6 +163,11 @@ class Flotte :
 		long = self.longueur
 		nb = self.nb_camions
 		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
+	
+	def afficher(self):
+		print(self)
+		for t in self.trajets:
+			t.afficher()
 
 	
 	def ajouter_camion(self, trajet: Trajet, marchandise: int = 0) -> None:

@@ -36,6 +36,6 @@ def inter_relocate(flotte: Flotte):
     return mini, ind
 
 def effectuer_changements(flotte: Flotte, dist: float, ind: tuple[tuple[int, int], tuple[int, int]]):
-    flotte.trajets[ind[0][0]].retirer_client(ind[0][1])
-    flotte.trajets[ind[1][0]].ajouter_client(ind[1][1])
+    cli = flotte.trajets[ind[0][0]].retirer_client(ind[0][1])
+    flotte.trajets[ind[1][0]].ajouter_client(ind[1][1], cli)
     flotte.longueur += dist
