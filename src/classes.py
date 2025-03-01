@@ -38,7 +38,7 @@ class Trajet :
 
 	__slots__ = "longueur", "nb_clients", "clients", "depot"
 
-	def __init__(self, depot: Client = Client()) -> None:
+	def __init__(self, depot: Client = Client()):
 		self.longueur = 0.0
 		self.nb_clients = 0
 		self.clients = []
@@ -57,7 +57,7 @@ class Trajet :
 		print(f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {[e.id for e in self.clients]})")
 	
 	
-	def ajouter_client(self, indice: int, client: Client) -> None:
+	def ajouter_client(self, indice: int, client: Client):
 		"""
 		Ajoute un client à la feuille de route, à la position 'indice'.
 
@@ -68,8 +68,8 @@ class Trajet :
 		client : Client
 			Client à ajouter dans l'itinéraire de livraison.
 		"""
-		assert type(client) == Client
-		assert type(indice) == int and indice >= 0
+		assert isinstance(client, Client)
+		assert isinstance(indice, int) and indice >= 0
 		self.longueur += self.dist_ajouter_client(indice, client)
 		self.clients.insert(indice, client)
 		self.nb_clients += 1
@@ -88,7 +88,7 @@ class Trajet :
 		-------
 		Le client se trouvant à l'indice passé en paramètre
 		"""
-		assert type(indice) == int and indice < self.nb_clients and indice >= 0
+		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0
 		self.longueur += self.dist_retirer_client(indice)
 		cli = self.clients.pop(indice)
 		self.nb_clients -= 1
@@ -110,8 +110,8 @@ class Trajet :
 		-------
 		La différence positive de distance entre avant et après l'ajout du client
 		"""
-		assert type(client) == Client
-		assert type(indice) == int and indice >= 0
+		assert isinstance(client, Client)
+		assert isinstance(indice, int) and indice >= 0
 		if self.nb_clients == 0: lg = 2 * distance(self.depot, client)
 		else: 
 			if indice == 0: lg = distance(client, self.depot) + distance(client, self.clients[0]) - distance(self.clients[0], self.depot)
@@ -133,7 +133,7 @@ class Trajet :
 		-------
 		La différence négative de distance entre avant et après le retrait du client
 		"""
-		assert type(indice) == int and indice < self.nb_clients and indice >= 0
+		assert isinstance(indice, int) and indice < self.nb_clients and indice >= 0
 		cli = self.clients[indice]
 		if self.nb_clients == 1: lg = - self.longueur
 		else: 
@@ -146,12 +146,11 @@ class Trajet :
 
 
 
-
 class Flotte :
 
 	__slots__ = "capacite", "longueur", "nb_camions", "camions", "trajets"
 
-	def __init__(self, capacite: int = 0) -> None:
+	def __init__(self, capacite: int = 0):
 		self.capacite = capacite
 		self.longueur = 0.0
 		self.nb_camions = 0
@@ -164,13 +163,14 @@ class Flotte :
 		nb = self.nb_camions
 		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
 	
+	
 	def afficher(self):
 		print(self)
 		for t in self.trajets:
 			t.afficher()
 
 	
-	def ajouter_camion(self, trajet: Trajet, marchandise: int = 0) -> None:
+	def ajouter_camion(self, trajet: Trajet, marchandise: int = 0):
 		"""
 		Ajoute un camion et son itinéraire.
 
@@ -181,8 +181,8 @@ class Flotte :
 		trajet : Trajet
 			Itinéraire du camion
 		"""
-		assert type(marchandise) == int and marchandise <= self.capacite
-		assert type(trajet) == Trajet
+		assert isinstance(marchandise, int) and marchandise <= self.capacite
+		assert isinstance(trajet, Trajet)
 		self.camions.append(marchandise)
 		self.trajets.append(trajet)
 		self.longueur += trajet.longueur
@@ -202,7 +202,7 @@ class Flotte :
 		-------
 		Un tuple contenant respectivement la quantité de marchandises du camion, et la liste de ses clients
 		"""
-		assert type(indice) == int and indice < self.nb_camions and indice >= 0
+		assert isinstance(indice, int) and indice < self.nb_camions and indice >= 0
 		c = self.camions.pop(indice)
 		t = self.trajets.pop(indice)
 		self.longueur -= t.longueur
