@@ -36,13 +36,14 @@ def distance(client1: Client, client2: Client) -> float:
 
 class Trajet :
 
-	__slots__ = "longueur", "nb_clients", "clients", "depot"
+	__slots__ = "longueur", "nb_clients", "clients", "depot", "marchandise"
 
 	def __init__(self, depot: Client = Client()):
 		self.longueur = 0.0
 		self.nb_clients = 0
 		self.clients = []
 		self.depot = depot
+		self.marchandise = 0
 
 	
 	def __repr__(self) -> str:
@@ -73,6 +74,7 @@ class Trajet :
 		self.longueur += self.dist_ajouter_client(indice, client)
 		self.clients.insert(indice, client)
 		self.nb_clients += 1
+		self.marchandise += client.demande
 	
 	
 	def retirer_client(self, indice: int) -> Client:
@@ -92,6 +94,7 @@ class Trajet :
 		self.longueur += self.dist_retirer_client(indice)
 		cli = self.clients.pop(indice)
 		self.nb_clients -= 1
+		self.marchandise -= cli.demande
 		return cli
 	
 	
@@ -174,19 +177,18 @@ class Trajet :
 
 class Flotte :
 
-	__slots__ = "capacite", "longueur", "nb_camions", "camions", "trajets"
+	__slots__ = "capacite", "longueur", "nb_trajets", "trajets"
 
 	def __init__(self, capacite: int = 0):
 		self.capacite = capacite
 		self.longueur = 0.0
-		self.nb_camions = 0
-		self.camions = []
+		self.nb_trajets = 0
 		self.trajets = []
 	
 	
 	def __repr__(self) -> str :
 		long = self.longueur
-		nb = self.nb_camions
+		nb = self.nb_trajets
 		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
 	
 	
@@ -196,41 +198,37 @@ class Flotte :
 			t.afficher()
 
 	
-	def ajouter_camion(self, trajet: Trajet, marchandise: int = 0):
+	def ajouter_trajet(self, trajet: Trajet):
 		"""
-		Ajoute un camion et son itinéraire.
+		Ajoute un itinéraire de livraison.
 
 		Paramètres
 		----------
-		marchandise : int
-			Quantité de marchandises contenue dans le camion.
 		trajet : Trajet
-			Itinéraire du camion
+			Itinéraire de livraison à ajouter.
 		"""
-		assert isinstance(marchandise, int) and marchandise <= self.capacite
+		assert trajet.marchandise <= self.capacite
 		assert isinstance(trajet, Trajet)
-		self.camions.append(marchandise)
 		self.trajets.append(trajet)
 		self.longueur += trajet.longueur
-		self.nb_camions += 1
+		self.nb_trajets += 1
 	
 	
-	def retirer_camion(self, indice: int) -> tuple[int, list[Client]]:
+	def retirer_trajet(self, indice: int) -> Trajet:
 		"""
-		Efface un camion et son itinéraire.
+		Retire et renvoie un itinéraire de livraison.
 
 		Paramètres
 		----------
 		indice : int
-			Indice du camion dans la liste camions
+			Indice de l'itinéraire dans la liste 'trajets'.
 
 		Retourne
 		-------
-		Un tuple contenant respectivement la quantité de marchandises du camion, et la liste de ses clients
+		L'itinéraire de livraison qui a été retiré.
 		"""
-		assert isinstance(indice, int) and indice < self.nb_camions and indice >= 0
-		c = self.camions.pop(indice)
+		assert isinstance(indice, int) and indice < self.nb_trajets and indice >= 0
 		t = self.trajets.pop(indice)
 		self.longueur -= t.longueur
-		self.nb_camions -= 1
-		return c, t.clients
+		self.nb_trajets -= 1
+		return t
