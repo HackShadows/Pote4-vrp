@@ -14,6 +14,11 @@ class Client :
 
 	def __repr__(self) -> str :
 		x, y = self.pos
+		return f"Client(id: {self.id}, position: ({x} {y}))"
+	
+
+	def afficher(self) -> str :
+		x, y = self.pos
 		début, fin = self.intervalle_livraison
 		temps = self.temps_livraison
 		return f"Client(id: {self.id}, position: ({x} {y}), livraison entre {début} et {fin}, demande: {self.demande}, temps de livraison: {temps})"
@@ -21,9 +26,9 @@ class Client :
 
 
 def distance(client1: Client, client2: Client) -> float:
-    x1, y1 = client1.pos
-    x2, y2 = client2.pos
-    return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
+	x1, y1 = client1.pos
+	x2, y2 = client2.pos
+	return math.sqrt((x2 - x1)**2 + (y2 - y1)**2)
 
 
 
@@ -40,10 +45,16 @@ class Trajet :
 		self.depot = depot
 
 	
-	def __repr__(self) -> str :
+	def __repr__(self) -> str:
 		long = self.longueur
 		nb = self.nb_clients
-		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {'[e.id for e in self.clients]'})"
+		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients)"
+	
+	
+	def afficher(self) -> str:
+		long = self.longueur
+		nb = self.nb_clients
+		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {[e.id for e in self.clients]})"
 	
 	
 	def ajouter_client(self, indice: int, client: Client) -> None:
@@ -56,25 +67,16 @@ class Trajet :
 			Indice du client dans la liste clients.
 		client : Client
 			Client à ajouter dans l'itinéraire de livraison.
-
-		Raises
-		------
-		ValueError
-			Mauvaise saisie de client.
 		"""
-		try:
-			assert type(client) == Client
-			assert type(indice) == int and indice >= 0
-			self.clients.insert(indice, client)
-			self.nb_clients += 1
-			if self.nb_clients == 1: self.longueur = 2 * distance(self.depot, client)
-			else: 
-				if indice == 0: self.longueur += distance(client, self.depot) + distance(client, self.clients[1]) - distance(self.clients[1], self.depot)
-				elif indice >= self.nb_clients - 1: self.longueur += distance(client, self.depot) + distance(client, self.clients[-2]) - distance(self.clients[-2], self.depot)
-				else: self.longueur -= distance(self.clients[indice-1], self.clients[indice+1]) - distance(client, self.clients[indice+1]) - distance(client, self.clients[indice-1])
-		
-		except AssertionError:
-			raise ValueError ("Paramètre incorrect !")
+		assert type(client) == Client
+		assert type(indice) == int and indice >= 0
+		self.clients.insert(indice, client)
+		self.nb_clients += 1
+		if self.nb_clients == 1: self.longueur = 2 * distance(self.depot, client)
+		else: 
+			if indice == 0: self.longueur += distance(client, self.depot) + distance(client, self.clients[1]) - distance(self.clients[1], self.depot)
+			elif indice >= self.nb_clients - 1: self.longueur += distance(client, self.depot) + distance(client, self.clients[-2]) - distance(self.clients[-2], self.depot)
+			else: self.longueur -= distance(self.clients[indice-1], self.clients[indice+1]) - distance(client, self.clients[indice+1]) - distance(client, self.clients[indice-1])
 	
 	
 	def retirer_client(self, indice: int) -> Client:
@@ -89,26 +91,64 @@ class Trajet :
 		Retourne
 		-------
 		Le client se trouvant à l'indice passé en paramètre
-
-		Raises
-		------
-		ValueError
-			Mauvaise saisie de l'indice.
 		"""
-		try:
-			assert type(indice) == int and indice < self.nb_clients and indice >= 0
-			cli = self.clients.pop(indice)
-			self.nb_clients -= 1
-			if self.nb_clients == 0: self.longueur = 0 
-			elif self.nb_clients == 1: self.longueur = 2 * distance(self.clients[0], self.depot)
-			else: 
-				if indice == 0: self.longueur += distance(self.clients[0], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[0])
-				elif indice == self.nb_clients: self.longueur += distance(self.clients[-1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-1])
-				else: self.longueur += distance(self.clients[indice-1], self.clients[indice]) - distance(cli, self.clients[indice]) - distance(cli, self.clients[indice-1])
-			return cli
+		assert type(indice) == int and indice < self.nb_clients and indice >= 0
+		cli = self.clients.pop(indice)
+		self.nb_clients -= 1
+		if self.nb_clients == 0: self.longueur = 0 
+		else: 
+			if indice == 0: self.longueur += distance(self.clients[0], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[0])
+			elif indice == self.nb_clients: self.longueur += distance(self.clients[-1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-1])
+			else: self.longueur += distance(self.clients[indice-1], self.clients[indice]) - distance(cli, self.clients[indice]) - distance(cli, self.clients[indice-1])
+		return cli
+	
+	def dist_ajouter_client(self, indice: int, client: Client) -> float:
+		"""
+		Calcule et renvoie la différence de distance entre avant et après l'ajout du client.
+
+		Paramètres
+		----------
+		indice : int
+			Indice du client dans la liste clients.
+		client : Client
+			Client à ajouter dans l'itinéraire de livraison.
+
+		Renvoie
+		-------
+		La différence positive de distance entre avant et après l'ajout du client
+		"""
+		assert type(client) == Client
+		assert type(indice) == int and indice >= 0
+		if self.nb_clients == 0: lg = 2 * distance(self.depot, client)
+		else: 
+			if indice == 0: lg = distance(client, self.depot) + distance(client, self.clients[0]) - distance(self.clients[0], self.depot)
+			elif indice >= self.nb_clients: lg = distance(client, self.depot) + distance(client, self.clients[-1]) - distance(self.clients[-1], self.depot)
+			else: lg = distance(client, self.clients[indice-1]) + distance(client, self.clients[indice]) - distance(self.clients[indice-1], self.clients[indice])
+		return lg
+	
+	
+	def dist_retirer_client(self, indice: int) -> float:
+		"""
+		Calcule et renvoie la différence de distance entre avant et après le retrait du client.
+
+		Paramètres
+		----------
+		indice : int
+			Indice du client dans la liste clients.
+
+		Retourne
+		-------
+		La différence négative de distance entre avant et après le retrait du client
+		"""
+		assert type(indice) == int and indice < self.nb_clients and indice >= 0
+		cli = self.clients[indice]
+		if self.nb_clients == 1: lg = - self.longueur
+		else: 
+			if indice == 0: lg = distance(self.clients[1], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[1])
+			elif indice == self.nb_clients - 1: lg = distance(self.clients[-2], self.depot) - distance(cli, self.depot) - distance(cli, self.clients[-2])
+			else: lg = distance(self.clients[indice-1], self.clients[indice+1]) - distance(cli, self.clients[indice+1]) - distance(cli, self.clients[indice-1])
+		return lg
 		
-		except AssertionError:
-			raise IndexError ("Indice invalide !")
 
 
 
@@ -142,22 +182,13 @@ class Flotte :
 			Quantité de marchandises contenue dans le camion.
 		trajet : Trajet
 			Itinéraire du camion
-
-		Raises
-		------
-		ValueError
-			Mauvaise saisie des paramètres.
 		"""
-		try:
-			assert type(marchandise) == int and marchandise <= self.capacite
-			assert type(trajet) == Trajet
-			self.camions.append(marchandise)
-			self.trajets.append(trajet)
-			self.longueur += trajet.longueur
-			self.nb_camions += 1
-		
-		except AssertionError:
-			raise ValueError ("Paramètres incorrects !")
+		assert type(marchandise) == int and marchandise <= self.capacite
+		assert type(trajet) == Trajet
+		self.camions.append(marchandise)
+		self.trajets.append(trajet)
+		self.longueur += trajet.longueur
+		self.nb_camions += 1
 	
 	
 	def retirer_camion(self, indice: int) -> tuple[int, list[Client]]:
@@ -172,19 +203,10 @@ class Flotte :
 		Retourne
 		-------
 		Un tuple contenant respectivement la quantité de marchandises du camion, et la liste de ses clients
-
-		Raises
-		------
-		ValueError
-			Mauvaise saisie de l'indice.
 		"""
-		try:
-			assert type(indice) == int and indice < self.nb_camions and indice >= 0
-			c = self.camions.pop(indice)
-			t = self.trajets.pop(indice)
-			self.longueur -= t.longueur
-			self.nb_camions -= 1
-			return c, t.clients
-		
-		except AssertionError:
-			raise IndexError ("Indice invalide !")
+		assert type(indice) == int and indice < self.nb_camions and indice >= 0
+		c = self.camions.pop(indice)
+		t = self.trajets.pop(indice)
+		self.longueur -= t.longueur
+		self.nb_camions -= 1
+		return c, t.clients
