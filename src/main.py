@@ -1,62 +1,32 @@
 from classes import Flotte, Trajet
-from opérateurs import inter_exchange, inter_relocate, effectuer_changements
+from affichage import affichage_console, affichage_graphique
 import filesIO as fio
 import time as t
 
 t0 = t.time()
 
 depot, clients = fio.importer_vrp("data/data101.vrp")
+
+positions = [cli.pos for cli in clients]
+
 nb_tot_clients = len(clients)
 trajet = Trajet(depot[0])
 flotte = Flotte(200)
-# print(trajet)
 for i in range(nb_tot_clients):
     if trajet.marchandise > flotte.capacite / 2:
-        print(trajet)
+        #print(trajet)
         flotte.ajouter_trajet(trajet)
         trajet = Trajet(depot[0])
     trajet.ajouter_client(i, clients[i])
 flotte.ajouter_trajet(trajet)
-print(trajet)
+#print(trajet)
 
+print(f"Temps de récupération des données : {round((t.time() - t0)*1000)}ms")
 
-def approximer_solution(flotte: Flotte) -> tuple[int, Flotte]:
-    it = 0
-    continuer = True
+choix = int(input("Affichage console (1), Affichage graphique (2) : "))
 
-    while continuer and it < 200:
-        exchange = inter_exchange(flotte)
-        relocate = inter_relocate(flotte)
-        if exchange[1] == None:
-            if relocate[1] == None: continuer = False
-            else: effectuer_changements(flotte, relocate[0], relocate[1], 1)
-        elif relocate[1] == None: effectuer_changements(flotte, exchange[0], exchange[1], 2)
-        else:
-            if relocate[0] < exchange[0]: effectuer_changements(flotte, relocate[0], relocate[1], 1) 
-            else: effectuer_changements(flotte, exchange[0], exchange[1], 2)
-        it += 1
-    
-    return it
+affichage_graphique(depot[0].pos, positions, flotte) if choix == 2 else affichage_console(flotte)
 
-
-print(flotte)
-t0 = t.time()
-lg = round(flotte.longueur, 2)
-# print(flotte.trajets[1].clients[37].id)
-# print(flotte.trajets[0].dist_remplacer_client(38, flotte.trajets[1].clients[37]))
-# print(flotte.trajets[0].clients[38].id)
-# print(flotte.trajets[1].dist_remplacer_client(37, flotte.trajets[0].clients[38]))
-
-it = approximer_solution(flotte)
-
-print(f"\nLongueur initiale : {lg}km")
-print(f"Longueur finale : {round(flotte.longueur, 2)}km\n")
-flotte.afficher(True)
-
-print(f"\n{it} itérations")
-print("Temps d'éxecution : ", end="")
-if t.time() - t0 < 1: print(round((t.time() - t0)*1000), "ms")
-else: print(round(t.time() - t0, 2), "s")
 
 # print(depot[0])
 # met = fio.METADONNEE_CONNUES.keys()

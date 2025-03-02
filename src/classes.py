@@ -197,6 +197,7 @@ class Flotte :
 		print(self)
 		for t in self.trajets:
 			t.afficher(capacite)
+		print()
 
 	
 	def ajouter_trajet(self, trajet: Trajet):
