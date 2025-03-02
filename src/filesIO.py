@@ -8,7 +8,7 @@ from classes import Client
 import re, warnings
 from pathlib import Path
 
-from typing import IO
+from typing import Any, IO
 
 
 
@@ -21,7 +21,7 @@ class ParsingError(Exception) :
 
 
 
-METADONNEE_CONNUES = {
+MÉTADONNÉE_CONNUES = {
 	"NAME"         : str,
 	"COMMENT"      : str,
 	"TYPE"         : str,
@@ -46,19 +46,19 @@ def _cherche_entête(nom_tableau :str, entête :list[str], données :list[str]) 
 
 	Paramètres
 	----------
-	nom_tableau : string
+	nom_tablea : string
 		Le nom du tableau auquel appartient l'entête. Demander pour donner plus d'information en cas d'erreur.
 	entête : list of strings
 		L'entête du tableau, l'ordre des attributs doit être conservé.
 	données : list of strings
 		Les données recherchées dans l'entête.
 	
-	Retourne
+	Renvoie
 	-------
 	Une liste contenant pour chaque donnée, son index dans l'entête.
 
-	Raises
-	------
+	Erreurs
+	-------
 	ParsingError
 		La donnée n'a pas été trouvé dans l'entête.
 	"""
@@ -75,7 +75,7 @@ def _cherche_entête(nom_tableau :str, entête :list[str], données :list[str]) 
 
 
 
-def importer_vrp(fichier :str|Path|IO[str]) -> tuple[list[Client], list[Client]] :
+def importer_vrp(fichier :str|Path|IO[str]) -> tuple[dict[str, Any], list[Client], list[Client]] :
 	"""
 	Importe les données du fichier .vrp dans le programme.
 	La fonction parse les métadonnées, puis se met à la recherche des tableaux 'DATA_DEPOTS' et 'DATA_CLIENTS'.
@@ -87,14 +87,21 @@ def importer_vrp(fichier :str|Path|IO[str]) -> tuple[list[Client], list[Client]]
 	fichier : stream_like
 		Un flux ouvert sur le fichier à importer.
 	
-	Retourne
+	Renvoie
 	-------
 	Un tuple contenant respectivement la liste des dépots et la liste des clients.
 
-	Raises
-	------
+	Avertissements
+	--------------
+	UserWarning
+		Un même tableau apparaît deux fois ou plus dans le fichier.
+
+	Erreurs
+	-------
 	ParsingError
-		Une métadonnée, un entête est mal formé OU les tableaux recherchés ne sont pas trouvés.
+		Une métadonnée ou un entête est mal formé
+	ParsingError
+		Les tableaux recherchés ne sont pas trouvés.
 	TypeError
 		Une métadonnée ou une valeur d'un tableau n'a pas le bon type.
 	ValueError
@@ -114,7 +121,7 @@ def importer_vrp(fichier :str|Path|IO[str]) -> tuple[list[Client], list[Client]]
 			raise ParsingError(f"La métadonné \"{ligne}\" ne suit pas le format \"<NOM_DE_LA_METADONNE> : <valeur>\".")
 		nom, valeur = match.groups()
 
-		typ = METADONNEE_CONNUES.get(nom)
+		typ = MÉTADONNÉE_CONNUES.get(nom)
 		if typ is not None :
 			try :
 				valeur = typ(valeur)
@@ -187,4 +194,4 @@ def importer_vrp(fichier :str|Path|IO[str]) -> tuple[list[Client], list[Client]]
 
 
 
-	return dépots, clients
+	return métadonnées, dépots, clients

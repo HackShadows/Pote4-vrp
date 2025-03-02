@@ -18,7 +18,8 @@ def approximation_solution(fichier: str, affichage: int = 1):
         Affichage console détaillé (3), Affichage graphique détaillé (4)
     """
 
-    depot, clients = fio.importer_vrp(fichier)
+    # _ parce que les métadonées sont pas encore utilisées
+    _, depot, clients = fio.importer_vrp(fichier)
 
     positions = [cli.pos for cli in clients]
 
