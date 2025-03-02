@@ -8,10 +8,26 @@ from random import randint
 
 
 
-def affichage_graphique(pos_depot: tuple[int, int], pos_clients: list[tuple[int, int]], flotte: Flotte, detail: bool = False):
+def affichage_graphique(pos_clients: list[tuple[int, int]], flotte: Flotte, detail: bool = False):
+    """
+    Calcule et affiche graphiquement les étapes pour arriver à la solution approximée.
+
+    Paramètres
+    ----------
+    pos_clients : list[tuple[int, int]]
+        Liste de tuples contenant les coordonnées (x, y) des clients.
+    flotte : Flotte
+        Flotte sur laquelle sont effectués les calculs (possède au moins 1 trajet).
+    detail : bool
+        Booléen permettant de spécifier si l'on souhaite un affichage détaillé.
+    """
+    assert isinstance(pos_clients, list) and isinstance(flotte, Flotte) and isinstance(detail, bool) and flotte.nb_trajets > 0
+    for tu in pos_clients: assert isinstance(tu, tuple)
+    
     t0 = t.time()
     if detail: flotte.afficher(True)
     points = np.array(pos_clients)
+    pos_depot = np.array(flotte.trajets[0].depot.pos)
     lg = round(flotte.longueur, 2)
     
     # Créer la figure et les axes
@@ -79,6 +95,17 @@ def affichage_graphique(pos_depot: tuple[int, int], pos_clients: list[tuple[int,
 
 
 def affichage_console(flotte: Flotte, detail: bool = False):
+    """
+    Calcule et affiche en console la solution approximée.
+
+    Paramètres
+    ----------
+    flotte : Flotte
+        Flotte sur laquelle sont effectués les calculs.
+    detail : bool
+        Booléen permettant de spécifier si l'on souhaite un affichage détaillé.
+    """
+    assert isinstance(flotte, Flotte) and isinstance(detail, bool)
     t0 = t.time()
     if detail: flotte.afficher(True)
     it = 0
