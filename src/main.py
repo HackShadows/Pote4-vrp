@@ -3,6 +3,7 @@ from affichage import affichage_console, affichage_graphique
 import filesIO as fio
 import time as t
 
+
 t0 = t.time()
 
 depot, clients = fio.importer_vrp("data/data101.vrp")
@@ -21,11 +22,19 @@ for i in range(nb_tot_clients):
 flotte.ajouter_trajet(trajet)
 #print(trajet)
 
+
 print(f"Temps de récupération des données : {round((t.time() - t0)*1000)}ms")
 
 choix = int(input("Affichage console (1), Affichage graphique (2) : "))
+detail = True if int(input("Affichage détaillé (1 = oui, 0 = non) : ")) else False
 
-affichage_graphique(depot[0].pos, positions, flotte) if choix == 2 else affichage_console(flotte)
+affichage_graphique(depot[0].pos, positions, flotte, detail) if choix == 2 else affichage_console(flotte, detail)
+
+
+
+
+
+
 
 
 # print(depot[0])
