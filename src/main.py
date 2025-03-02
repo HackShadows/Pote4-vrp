@@ -4,34 +4,44 @@ import filesIO as fio
 import time as t
 
 
-t0 = t.time()
+def approximation_solution(fichier: str):
+    """
+    Calcule et affiche un itinéraire de livraison proche de l'optimal.
 
-depot, clients = fio.importer_vrp("data/data101.vrp")
+    Paramètres
+    ----------
+    fichier : str
+        Chemin du fichier vrp contenant les informations sur les clients à livrer.
+        Ex : data/data101.vrp
+    """
+    t0 = t.time()
 
-positions = [cli.pos for cli in clients]
+    depot, clients = fio.importer_vrp(fichier)
 
-nb_tot_clients = len(clients)
-trajet = Trajet(depot[0])
-flotte = Flotte(200)
-for i in range(nb_tot_clients):
-    if trajet.marchandise > flotte.capacite / 2:
-        #print(trajet)
-        flotte.ajouter_trajet(trajet)
-        trajet = Trajet(depot[0])
-    trajet.ajouter_client(i, clients[i])
-flotte.ajouter_trajet(trajet)
-#print(trajet)
+    positions = [cli.pos for cli in clients]
 
-
-print(f"Temps de récupération des données : {round((t.time() - t0)*1000)}ms")
-
-choix = int(input("Affichage console (1), Affichage graphique (2) : "))
-detail = True if int(input("Affichage détaillé (1 = oui, 0 = non) : ")) else False
-
-affichage_graphique(depot[0].pos, positions, flotte, detail) if choix == 2 else affichage_console(flotte, detail)
+    nb_tot_clients = len(clients)
+    trajet = Trajet(depot[0])
+    flotte = Flotte(200)
+    for i in range(nb_tot_clients):
+        if trajet.marchandise > flotte.capacite / 2:
+            #print(trajet)
+            flotte.ajouter_trajet(trajet)
+            trajet = Trajet(depot[0])
+        trajet.ajouter_client(i, clients[i])
+    flotte.ajouter_trajet(trajet)
+    #print(trajet)
 
 
+    print(f"Temps de récupération des données : {round((t.time() - t0)*1000)}ms\n")
 
+    choix = int(input("Affichage console (1), Affichage graphique (2), Affichage console détaillé (3), Affichage graphique détaillé (4) : "))
+    detail = True if choix in [3, 4] else False
+
+    affichage_graphique(depot[0].pos, positions, flotte, detail) if choix in [2, 4] else affichage_console(flotte, detail)
+
+
+approximation_solution("data/data101.vrp")
 
 
 
