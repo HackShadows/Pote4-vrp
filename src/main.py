@@ -3,7 +3,7 @@ from affichage import affichage_console, affichage_graphique
 import filesIO as fio
 
 
-def approximation_solution(fichier: str):
+def approximation_solution(fichier: str, affichage: int = 1):
     """
     Calcule et affiche un itinéraire de livraison proche de l'optimal.
 
@@ -12,6 +12,10 @@ def approximation_solution(fichier: str):
     fichier : str
         Chemin du fichier vrp contenant les informations sur les clients à livrer.
         Ex : data/data101.vrp
+    affichage : int
+        Entier permettant de spécifier l'affichage désiré.
+        Affichage console (1), Affichage graphique (2), 
+        Affichage console détaillé (3), Affichage graphique détaillé (4)
     """
 
     depot, clients = fio.importer_vrp(fichier)
@@ -28,10 +32,14 @@ def approximation_solution(fichier: str):
         trajet.ajouter_client(i, cli)
     flotte.ajouter_trajet(trajet)
 
-    choix = int(input("Affichage console (1), Affichage graphique (2), Affichage console détaillé (3), Affichage graphique détaillé (4) :\n"))
-    detail = True if choix in [3, 4] else False
+    detail = True if affichage in [3, 4] else False
 
-    affichage_graphique(positions, flotte, detail) if choix in [2, 4] else affichage_console(flotte, detail)
+    affichage_graphique(positions, flotte, detail) if affichage in [2, 4] else affichage_console(flotte, detail)
 
+fichiers = [101, 102, 111, 112, 201, 202, 1101, 1102, 1201, 1202]
 
-approximation_solution("data/data101.vrp")
+# affichage = int(input("Affichage console (1), Affichage graphique (2), Affichage console détaillé (3), Affichage graphique détaillé (4) :\n"))
+# for num in fichiers : approximation_solution(f"data/data{num}.vrp", affichage)
+
+num = fichiers[9]
+approximation_solution(f"data/data{num}.vrp", 2)

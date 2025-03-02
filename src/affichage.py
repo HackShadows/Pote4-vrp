@@ -33,16 +33,16 @@ def affichage_graphique(pos_clients: list[tuple[int, int]], flotte: Flotte, deta
     # Créer la figure et les axes
     fig, ax = plt.subplots()
     pos_x, pos_y = points[:, 0], points[:, 1]
-    ax.set_xlim(0, max(pos_x)+5)
-    ax.set_ylim(0, max(pos_y)+8)
+    ax.set_xlim(-2, max(pos_x)+5)
+    ax.set_ylim(-2, max(pos_y)+11)
 
     # Points fixes
     ax.scatter(pos_x, pos_y, color='blue', label="Clients")
     ax.scatter(pos_depot[0], pos_depot[1], color='red', label="Dépôt")
 
-    text_it = plt.text(2, max(pos_y)+2, "Itérations = 0")
-    text_lg = plt.text(2, max(pos_y)+5, "Longueur = km")
-    text_nb = plt.text(max(pos_x)-20, max(pos_y)+5, "Nombre de camions : ")
+    text_it = plt.text(0, max(pos_y)+2, "Itérations = 0")
+    text_lg = plt.text(0, max(pos_y)+5, "Longueur = km")
+    text_nb = plt.text(0, max(pos_y)+8, "Nombre de camions : ")
 
     # Stocker les lignes tracées
     #lines = [ax.plot([], [], color=f'#{(1 if (i+1)%2 else 0)*randint(((255 if (i+1)%3 else 0)), 255):02x}{(1 if (i+1)%3 else 0)*randint(((255 if (i+1)%4 else 0)), 255):02x}{(1 if (i+1)%4 else 0)*randint(((255 if (i+1)%5 else 0)), 255):02x}', linewidth=2)[0] for i in range(3)]
