@@ -8,7 +8,7 @@ t0 = t.time()
 depot, clients = fio.importer_vrp("data/data101.vrp")
 nb_tot_clients = len(clients)
 trajet = Trajet(depot[0])
-flotte = Flotte(200000)
+flotte = Flotte(200)
 # print(trajet)
 for i in range(nb_tot_clients):
     if trajet.marchandise > flotte.capacite / 2:
@@ -17,13 +17,14 @@ for i in range(nb_tot_clients):
         trajet = Trajet(depot[0])
     trajet.ajouter_client(i, clients[i])
 flotte.ajouter_trajet(trajet)
+print(trajet)
 
 
 def approximer_solution(flotte: Flotte) -> tuple[int, Flotte]:
     it = 0
     continuer = True
 
-    while continuer and it < 300:
+    while continuer and it < 200:
         exchange = inter_exchange(flotte)
         relocate = inter_relocate(flotte)
         if exchange[1] == None:
@@ -35,19 +36,24 @@ def approximer_solution(flotte: Flotte) -> tuple[int, Flotte]:
             else: effectuer_changements(flotte, exchange[0], exchange[1], 2)
         it += 1
     
-    return (it, flotte)
+    return it
 
 
 print(flotte)
 t0 = t.time()
 lg = round(flotte.longueur, 2)
+# print(flotte.trajets[1].clients[37].id)
+# print(flotte.trajets[0].dist_remplacer_client(38, flotte.trajets[1].clients[37]))
+# print(flotte.trajets[0].clients[38].id)
+# print(flotte.trajets[1].dist_remplacer_client(37, flotte.trajets[0].clients[38]))
 
-it, flotte2 = approximer_solution(flotte)
+it = approximer_solution(flotte)
 
-print(f"Longueur initiale : {lg}km")
-print(f"Longueur finale : {round(flotte.longueur, 2)}km")
-print(f"{it} itérations")
+print(f"\nLongueur initiale : {lg}km")
+print(f"Longueur finale : {round(flotte.longueur, 2)}km\n")
+flotte.afficher(True)
 
+print(f"\n{it} itérations")
 print("Temps d'éxecution : ", end="")
 if t.time() - t0 < 1: print(round((t.time() - t0)*1000), "ms")
 else: print(round(t.time() - t0, 2), "s")

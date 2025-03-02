@@ -52,10 +52,11 @@ class Trajet :
 		return f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients)"
 	
 	
-	def afficher(self):
+	def afficher(self, capacite = False):
 		long = self.longueur
 		nb = self.nb_clients
-		print(f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {[e.id for e in self.clients]})")
+		capa = self.marchandise
+		print(f"Trajet(longueur : {round(long, 2)}km, contient {nb} clients, {capa if capacite else [e.id for e in self.clients]})")
 	
 	
 	def ajouter_client(self, indice: int, client: Client):
@@ -162,12 +163,12 @@ class Trajet :
 		La différence de distance entre avant et après le remplacement du client
 		"""
 		assert isinstance(client, Client) and self.nb_clients > 0
-		assert isinstance(indice, int) and indice >= 0
+		assert isinstance(indice, int) and indice >= 0 and indice < self.nb_clients
 		cli = self.clients[indice]
 		if self.nb_clients == 1: lg = 2 * distance(self.depot, client) - self.longueur
 		else: 
 			if indice == 0: lg = distance(client, self.depot) + distance(client, self.clients[1]) - distance(cli, self.depot) - distance(cli, self.clients[1])
-			elif indice >= self.nb_clients-1: lg = distance(client, self.depot) + distance(client, self.clients[-2]) - distance(cli, self.depot) - distance(cli, self.clients[-2])
+			elif indice == self.nb_clients-1: lg = distance(client, self.depot) + distance(client, self.clients[-2]) - distance(cli, self.depot) - distance(cli, self.clients[-2])
 			else: lg = distance(client, self.clients[indice-1]) + distance(client, self.clients[indice+1]) - distance(cli, self.clients[indice-1]) - distance(cli, self.clients[indice+1])
 		return lg
 		
@@ -192,10 +193,10 @@ class Flotte :
 		return f"Flotte(longueur : {round(long, 2)}km, contient {nb} camions)"
 	
 	
-	def afficher(self):
+	def afficher(self, capacite = False):
 		print(self)
 		for t in self.trajets:
-			t.afficher()
+			t.afficher(capacite)
 
 	
 	def ajouter_trajet(self, trajet: Trajet):

@@ -30,6 +30,7 @@ def intra_relocate(trajet: Trajet) -> tuple[float, tuple[int, int]]:
             tmp2 = tmp + trajet.dist_ajouter_client(j, cli)
             #if tmp2 <= mini and j != i:
             if tmp2 < mini:
+                #print("Indices : ", ind, " ; Mini : ", mini, " ; tmp : ", tmp2)
                 mini = tmp2
                 ind = (i, j)
         trajet.ajouter_client(i, cli)
@@ -59,20 +60,24 @@ def inter_relocate(flotte: Flotte) -> tuple[float, tuple[tuple[int, int], tuple[
     for i, t in enumerate(trajets):
         for x, t2 in enumerate(trajets):
             if x == i:
+                #print("Intra relocate : ")
                 min_tmp, ind_tmp = intra_relocate(trajets[x])
                 #if ind_tmp != None and min_tmp <= mini: 
                 if min_tmp < mini: 
                     ind = ((i, ind_tmp[0]), (x, ind_tmp[1]))
                     mini = min_tmp
             else:
+                #print("Inter relocate : ")
                 for j, c in enumerate(t.clients):
                     tmp = t.dist_retirer_client(j)
                     for y in range(t2.nb_clients+1):
-                        tmp2 = tmp + t2.dist_ajouter_client(y, c)
-                        #if tmp2 <= mini:
-                        if tmp2 < mini:
-                            mini = tmp2
-                            ind = ((i, j), (x, y))
+                        if t2.marchandise + c.demande <= flotte.capacite:
+                            tmp2 = tmp + t2.dist_ajouter_client(y, c)
+                            #if tmp2 <= mini:
+                            if tmp2 < mini:
+                                #print("Indices : ", ind, " ; Mini : ", mini, " ; tmp : ", tmp2)
+                                mini = tmp2
+                                ind = ((i, j), (x, y))
     return (mini, ind)
 
 
@@ -104,6 +109,7 @@ def intra_exchange(trajet: Trajet) -> tuple[float, tuple[int, int]]:
             tmp = trajet.longueur + trajet.dist_remplacer_client(j, cli)
             #if tmp <= mini and j != i:
             if tmp < mini:
+                #print("Indices : ", ind, " ; Mini : ", mini, " ; tmp : ", tmp)
                 mini = tmp
                 ind = (i, j)
             trajet.retirer_client(i)
@@ -132,20 +138,24 @@ def inter_exchange(flotte: Flotte) -> tuple[float, tuple[tuple[int, int], tuple[
     trajets = flotte.trajets
     for i, t in enumerate(trajets):
         for x, t2 in enumerate(trajets[i:]):
-            if x == i:
-                min_tmp, ind_tmp = intra_exchange(trajets[x])
+            if x == 0:
+                #print("Intra exchange : ")
+                min_tmp, ind_tmp = intra_exchange(trajets[i])
                 #if ind_tmp != None and min_tmp <= mini: 
                 if min_tmp < mini: 
-                    ind = ((i, ind_tmp[0]), (x, ind_tmp[1]))
+                    ind = ((i, ind_tmp[0]), (i, ind_tmp[1]))
                     mini = min_tmp
             else:
+                #print("Inter exchange : ")
                 for j, c in enumerate(t.clients):
                     for y, c2 in enumerate(t2.clients):
-                        tmp = t.dist_remplacer_client(j, c2) + t2.dist_remplacer_client(y, c)
-                        #if tmp <= mini:
-                        if tmp < mini:
-                            mini = tmp
-                            ind = ((i, j), (x, y))
+                        if t.marchandise - c.demande + c2.demande <= flotte.capacite and t2.marchandise - c2.demande + c.demande <= flotte.capacite:
+                            tmp = t.dist_remplacer_client(j, c2) + t2.dist_remplacer_client(y, c)
+                            #if tmp <= mini:
+                            if tmp < mini:
+                                #print("Indices : ", ind, " ; Mini : ", mini, " ; tmp : ", tmp)
+                                mini = tmp
+                                ind = ((i, j), (x+i, y))
     return (mini, ind)
 
 
@@ -173,6 +183,7 @@ def effectuer_changements(flotte: Flotte, new_dist: float, indice: tuple[tuple[i
         case 1:
             cli = trajets[i].retirer_client(j)
             trajets[x].ajouter_client(y, cli)
+            if trajets[i].nb_clients == 0: flotte.retirer_trajet(i)
         case 2:
             cli = trajets[i].clients[j]
             cli2 = trajets[x].retirer_client(y)
