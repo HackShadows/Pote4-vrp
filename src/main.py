@@ -1,7 +1,6 @@
 from classes import Flotte, Trajet
 from affichage import affichage_console, affichage_graphique
 import filesIO as fio
-import time as t
 
 
 def approximation_solution(fichier: str):
@@ -14,7 +13,6 @@ def approximation_solution(fichier: str):
         Chemin du fichier vrp contenant les informations sur les clients à livrer.
         Ex : data/data101.vrp
     """
-    t0 = t.time()
 
     depot, clients = fio.importer_vrp(fichier)
 
@@ -29,8 +27,6 @@ def approximation_solution(fichier: str):
             trajet = Trajet(depot[0])
         trajet.ajouter_client(i, cli)
     flotte.ajouter_trajet(trajet)
-
-    print(f"Temps de récupération des données : {round((t.time() - t0)*1000)}ms\n")
 
     choix = int(input("Affichage console (1), Affichage graphique (2), Affichage console détaillé (3), Affichage graphique détaillé (4) :\n"))
     detail = True if choix in [3, 4] else False
