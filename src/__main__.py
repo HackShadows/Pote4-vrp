@@ -2,6 +2,8 @@ from classes import Flotte, Trajet
 from affichage import affichage_console, affichage_graphique
 import filesIO as fio
 
+from pathlib import Path
+
 
 
 
@@ -34,8 +36,11 @@ def approximation_solution(fichier :str, mode :int = 1) :
 		Le fichier d'entré contient plus d'un dépôt.
 	Toutes les erreurs de filesIO.importer_vrp
 	"""
-	
-	métadonnées, dépôts, clients = fio.importer_vrp(fichier)
+	fichier_in  = Path(fichier)
+	fichier_out = Path(fichier_in.parent, f"out_{fichier_in.name}")
+
+
+	métadonnées, dépôts, clients = fio.importer_vrp(fichier_in)
 	if len(dépôts) != 1 :
 		raise ValueError("L'algorithmes ne peut gérer qu'un seul dépôt à la fois.")
 	dépôt = dépôts[0]
@@ -61,6 +66,9 @@ def approximation_solution(fichier :str, mode :int = 1) :
 	elif (mode & AFFICHAGE) == GRAPHIQUE : affichage_graphique(positions, flotte, détails)
 
 
+	fio.exporter_vrp(fichier_out, flotte, **métadonnées)
+
+
 
 
 
@@ -71,7 +79,7 @@ def main_dev() :
 	# affichage = int(input("Affichage console (1), Affichage graphique (2), Affichage console détaillé (3), Affichage graphique détaillé (4) :\n"))
 	# for num in fichiers : approximation_solution(f"data/data{num}.vrp", affichage)
 
-	num = fichiers[0]
+	num = fichiers[9]
 	approximation_solution(f"data/data{num}.vrp", GRAPHIQUE|DETAILS)
 
 
