@@ -1,0 +1,4 @@
+# Les fichiers dont les devs se servent mais qui devraient pas se retrouver dans le repo.
+**.swp
+**/.DS_Store
+**/__pycache__/
